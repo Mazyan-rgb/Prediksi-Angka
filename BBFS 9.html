@@ -1,19 +1,147 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Prediksi Angka</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🔮 Prediksi Angka</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: linear-gradient(to bottom right, #e0f7fa, #ffffff);
+      padding: 20px;
+      text-align: center;
+    }
+    input, button {
+      font-size: 16px;
+      padding: 10px;
+      margin: 8px;
+      border-radius: 6px;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .result {
+      margin-top: 20px;
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: left;
+      display: inline-block;
+    }
+    .result div {
+      margin: 8px 0;
+      font-size: 18px;
+    }
+  </style>
 </head>
-<body style="font-family:sans-serif; padding:20px;">
-  <h2>🔮 Prediksi Angka</h2>
-  <input type="text" id="inputAngka" placeholder="Masukkan angka (contoh: 1234)">
+<body>
+  <h1>🔮 Prediksi Angka</h1>
+  <input type="text" id="inputAngka" placeholder="Masukkan angka (misal: 6021)">
+  <br>
   <button onclick="prediksi()">🔍 Prediksi</button>
-  <p id="hasil"></p>
+  <button onclick="reset()">♻️ Reset</button>
+  <button onclick="salin()">📋 Salin</button>
+  <button onclick="simpan()">💾 Simpan</button>
+  <button onclick="shareWA()">🟢 WhatsApp</button>
+  <button onclick="shareTG()">🔵 Telegram</button>
+
+  <div class="result" id="hasilBox" style="display:none;">
+    <div id="bbfs"></div>
+    <div id="kontrol"></div>
+    <div id="ikut"></div>
+    <div id="tarung"></div>
+  </div>
 
   <script>
+    let hasil = {};
+
     function prediksi() {
-      const val = document.getElementById("inputAngka").value;
-      document.getElementById("hasil").innerText = "Hasil: " + val;
+      const input = document.getElementById("inputAngka").value.trim();
+      if (!input.match(/^[0-9]+$/)) {
+        alert("Masukkan angka yang valid!");
+        return;
+      }
+
+      const total = Array.from(input).reduce((t, c) => t + c.charCodeAt(0), 0);
+
+      function ambilUnik(jumlah, offset = 0) {
+        const set = new Set();
+        while (set.size < jumlah) {
+          let angka = (total + offset + set.size) % 10;
+          set.add(angka);
+        }
+        return Array.from(set).join('');
+      }
+
+      const bbfs = ambilUnik(9);
+      const kontrol = ambilUnik(6, 1);
+      const ikut = ambilUnik(4, 2);
+
+      const used = new Set();
+      function randomUnik(n) {
+        const set = new Set();
+        while (set.size < n) {
+          let r = Math.floor(Math.random() * 10);
+          if (!used.has(r)) {
+            set.add(r);
+            used.add(r);
+          }
+        }
+        return Array.from(set).join('');
+      }
+
+      const tarung1 = randomUnik(6);
+      const tarung2 = randomUnik(6);
+
+      hasil = {
+        bbfs: bbfs,
+        kontrol: kontrol,
+        ikut: ikut,
+        tarung: `${tarung1} vs ${tarung2}`
+      };
+
+      document.getElementById("bbfs").innerText = "🔢 BBFS: " + hasil.bbfs;
+      document.getElementById("kontrol").innerText = "🧠 Angka Kontrol: " + hasil.kontrol;
+      document.getElementById("ikut").innerText = "👥 Angka Ikut: " + hasil.ikut;
+      document.getElementById("tarung").innerText = "⚔️ Pola Tarung: " + hasil.tarung;
+      document.getElementById("hasilBox").style.display = "block";
+    }
+
+    function reset() {
+      document.getElementById("inputAngka").value = "";
+      document.getElementById("hasilBox").style.display = "none";
+    }
+
+    function salin() {
+      const teks = `BBFS: ${hasil.bbfs}\nKontrol: ${hasil.kontrol}\nIkut: ${hasil.ikut}\nTarung: ${hasil.tarung}`;
+      navigator.clipboard.writeText(teks).then(() => {
+        alert("✅ Hasil disalin ke clipboard!");
+      });
+    }
+
+    function simpan() {
+      const teks = `BBFS: ${hasil.bbfs}\nKontrol: ${hasil.kontrol}\nIkut: ${hasil.ikut}\nTarung: ${hasil.tarung}`;
+      const blob = new Blob([teks], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = "hasil_prediksi.txt";
+      a.click();
+    }
+
+    function shareWA() {
+      const teks = encodeURIComponent(`🔮 Prediksi:\nBBFS: ${hasil.bbfs}\nKontrol: ${hasil.kontrol}\nIkut: ${hasil.ikut}\nTarung: ${hasil.tarung}`);
+      window.open(`https://wa.me/?text=${teks}`, '_blank');
+    }
+
+    function shareTG() {
+      const teks = encodeURIComponent(`🔮 Prediksi:\nBBFS: ${hasil.bbfs}\nKontrol: ${hasil.kontrol}\nIkut: ${hasil.ikut}\nTarung: ${hasil.tarung}`);
+      window.open(`https://t.me/share/url?url=&text=${teks}`, '_blank');
     }
   </script>
 </body>
